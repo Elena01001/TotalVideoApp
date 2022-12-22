@@ -1,4 +1,4 @@
-package ru.netology.totalvideoapp.data
+package ru.netology.totalvideoapp.data.retrofit
 
 import okhttp3.Credentials
 import okhttp3.Interceptor

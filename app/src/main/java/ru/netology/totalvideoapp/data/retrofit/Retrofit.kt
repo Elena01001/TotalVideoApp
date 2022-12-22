@@ -1,11 +1,11 @@
-package ru.netology.totalvideoapp.data
+package ru.netology.totalvideoapp.data.retrofit
 
-import com.google.gson.GsonBuilder
 import okhttp3.OkHttpClient
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
-import ru.netology.totalvideoapp.data.Constants.Companion.BASE_URL
+import retrofit2.converter.scalars.ScalarsConverterFactory
+import ru.netology.totalvideoapp.data.TotalVideoApi
 import ru.netology.totalvideoapp.data.exception.ResultCallAdapterFactory
+import ru.netology.totalvideoapp.data.retrofit.Constants.Companion.BASE_URL
 
 object Retrofit {
 
@@ -13,13 +13,10 @@ object Retrofit {
         val client = OkHttpClient.Builder()
             .addInterceptor(BasicAuthInterceptor("stest", "!Te5t"))
             .build()
-        val gson = GsonBuilder()
-            .setLenient()
-            .create()
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .client(client)
-            .addConverterFactory(GsonConverterFactory.create(gson))
+            .addConverterFactory(ScalarsConverterFactory.create())
             .addCallAdapterFactory(ResultCallAdapterFactory())
             .build()
     }

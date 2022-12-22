@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import ru.netology.totalvideoapp.domain.usecase.GetUrlDataUseCase
 import ru.netology.totalvideoapp.domain.usecase.IncrementUseCase
@@ -13,30 +14,42 @@ class MainViewModel(
     private val getUrlDataUseCase: GetUrlDataUseCase
 ) : ViewModel() {
 
-    private var incrementEvent = MutableSharedFlow<Int>(1, 1)
+    private var count = 0
+    private val isActive = true
+
+    private var incrementEvent = MutableStateFlow<Int>(count)
     val incrementFlow: Flow<Int> = incrementEvent
 
-    private var getUrlEvent = MutableSharedFlow<String>(1, 1)
-    val urlDataFlow: Flow<String> = getUrlEvent
+    private var getSuccessUrlEvent = MutableStateFlow<String?>(null)
+    val successUrlDataFlow: Flow<String?> = getSuccessUrlEvent
 
-    fun onIncrementButtonClicked(number: Int) {
+    private var singleShotEvent = MutableSharedFlow<String>()
+    val singleShotFlow: Flow<String> = singleShotEvent
+
+    private var progressBarEvent = MutableStateFlow<Boolean>(false)
+    val progressBarFlow: Flow<Boolean> = progressBarEvent
+
+    fun onIncrementButtonClicked() {
         viewModelScope.launch {
-            incrementUseCase.execute(number)
-            incrementEvent.emit(number)
+            count = incrementUseCase.execute(count)
+            incrementEvent.emit(count)
         }
     }
 
-    fun onUrlButtonClicked(login: String, password: String) {
+    fun onUrlButtonClicked() {
         viewModelScope.launch {
-            getUrlDataUseCase.execute(login, password).onSuccess {
-                getUrlEvent.emit(it)
+            if (isActive) {
+                progressBarEvent.emit(true)
+                getUrlDataUseCase.execute().onSuccess {
+                    getSuccessUrlEvent.emit(it)
+                    progressBarEvent.emit(false)
+                }
+                    .onFailure {
+                        singleShotEvent.emit(it.localizedMessage?.toString() ?: "")
+                        getSuccessUrlEvent.emit(null)
+                        progressBarEvent.emit(false)
+                    }
             }
-
         }
     }
-}
-
-sealed class ResultState {
-    object EMPTY : ResultState()
-    data class FAILURE(val message: String) : ResultState()
 }

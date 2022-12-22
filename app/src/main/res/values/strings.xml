@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">TotalVideoApp</string>
+    <string name="get_url_data">Получить данные с url</string>
+    <string name="reply_text">Waited 3 seconds</string>
+    <string name="zero_state">0</string>
 </resources>
